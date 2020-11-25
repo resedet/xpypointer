@@ -1,0 +1,52 @@
+#!/usr/bin/env python3
+#
+# Copyright (c) 2020, Ryota Sakaguchi.
+# All rights reserved.
+#
+#
+# $Id: xpypointer, 2020/11/25 22:36:11
+#
+
+import time
+from Xlib import X, display
+
+COLOR = 'Red'
+
+def main():
+    # Xlib module primary objects
+    disp = display.Display() 
+    screen = disp.screen()
+    colormap = screen.default_colormap
+    pixel = colormap.alloc_named_color(COLOR).pixel
+
+    # create and map
+    stat = None
+    geom_x, geom_y = 0, 0
+    width, height = 10, 10
+    
+    window = screen.root.create_window(
+            geom_x,
+            geom_y,
+            width,
+            height,
+            0,
+            screen.root_depth,
+            X.InputOutput,
+            X.CopyFromParent,
+            background_pixel=pixel,
+            override_redirect=1,
+            event_mask=X.ExposureMask,
+    )
+    window.map()
+    colormap.alloc_named_color('white')
+    window.configure(stack_mode=X.Above)
+
+    while True:
+        stat = screen.root.query_pointer()
+        geom_x, geom_y = stat.root_x + 5, stat.root_y + 5
+        time.sleep(0.01)
+        colormap.alloc_named_color('white')
+        window.configure(x=geom_x, y=geom_y, stack_mode=X.Above)
+
+if __name__ == "__main__":
+    main()
